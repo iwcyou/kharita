@@ -21,7 +21,7 @@ if __name__ == '__main__':
 	HEADING_ANGLE_TOLERANCE = 100
 	FILE_CODE = 'data_uic'
 	DATA_PATH = 'data'
-	drawmap = False
+	drawmap = True
 	(opts, args) = getopt.getopt(sys.argv[1:], "f:m:p:r:s:a:d:h")
 	for o, a in opts:
 		if o == "-f":
@@ -37,8 +37,8 @@ if __name__ == '__main__':
 		if o == "-d":
 			drawmap = True
 		if o == "-h":
-			print "Usage: python sofa_map.py [-f <file_name>] [-p <file repository>] [-r <clustering_radius>] [-s <sampling_rate>] " \
-				  "[-a <heading angle tolerance>] [-h <help>]\n"
+			print("Usage: python sofa_map.py [-f <file_name>] [-p <file repository>] [-r <clustering_radius>] [-s <sampling_rate>] " \
+				  "[-a <heading angle tolerance>] [-h <help>]\n")
 			exit()
 
 	RADIUS_DEGREE = RADIUS_METER * 10e-6
@@ -155,9 +155,10 @@ if __name__ == '__main__':
 	with open('%s/%s_edges.txt' % (DATA_PATH, FILE_CODE), 'w') as fout:
 		for s, t in roadnet.edges():
 			fout.write('%s,%s\n%s,%s\n\n' % (clusters[s].lon, clusters[s].lat, clusters[t].lon, clusters[t].lat))
-	print 'Graph generated in %s seconds' % exec_time.seconds
+	print('Graph generated in %s seconds' % exec_time.seconds)
 	if drawmap:
 		from matplotlib import collections as mc, pyplot as plt
+		import os
 		lines = [[clusters[s].get_lonlat(), clusters[t].get_lonlat()] for s, t in roadnet.edges()]
 		lc = mc.LineCollection(lines)
 		fig, ax = plt.subplots()
@@ -165,3 +166,9 @@ if __name__ == '__main__':
 		ax.autoscale()
 		ax.margins(0.1)
 		plt.show()
+		#save image
+		save_path = "saved_images_star"
+		if not os.path.exists(save_path):
+			os.makedirs(save_path)
+		plt.savefig('%s/%s.png' % (save_path, FILE_CODE))
+

@@ -4,13 +4,13 @@ import matplotlib
 import getopt
 import sys
 import matplotlib.pyplot as plt
-from geopy.distance import vincenty
-from sklearn.neighbors import NearestNeighbors
+from geopy.distance import geodesic
+import sklearn.neighbors
 from geojson import MultiLineString
 
 LL = (41, -87);
-latconst = vincenty(LL, (LL[0] + 1, LL[1])).meters;
-lonconst = vincenty(LL, (LL[0], LL[1] + 1)).meters
+latconst = geodesic(LL, (LL[0] + 1, LL[1])).meters;
+lonconst = geodesic(LL, (LL[0], LL[1] + 1)).meters
 
 
 def geodist(point1, point2):
@@ -28,7 +28,7 @@ def getdata(nsamples, datafile, datestart, datestr):
 #3233678911,1080020,83,2015-10-03 06:52:48,57,51.4950963,25.262793500000001,PICKUP,private,100
     datapointwts = [];
     lats = []; lons = []; j = 0;
-    print datafile
+    print(datafile)
     with open(datafile,'rb') as f:
         for line in f:
             j = j+1;
@@ -83,7 +83,7 @@ def getseeds(datapoint,radius,theta):
             if j%periodsampl == 0:# and (is_power2(int(j/1000))):
 #                print(j,time.time()-start)
                 S = [(lonconst * xx[0], latconst * xx[1], theta / 180 * (xx[2]+45)) for xx in seeds];
-                nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(S)
+                nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(S)
                 X = [(lonconst * xx[0], latconst * xx[1], theta / 180 * (xx[2]+45)) for xx in chosen[j:min(len(chosen),j+periodsampl)]];
                 distances, indices = nbrs.kneighbors(X)
             if distances[j%periodsampl][0] >radius:
@@ -131,7 +131,7 @@ def densify(datapointwts):
 def getpossibleedges(datapointwts,seeds):
 #    datapointwts = densify(datapointwts);
     X = [(xx[0], xx[1]) for xx in datapointwts];    S = [(xx[0], xx[1]) for xx in seeds];cluster = {};p2cluster = []; gedges = {}; gedges1 = {}; nedges = {};
-    nbrs = NearestNeighbors(n_neighbors=5, algorithm='ball_tree').fit(S)
+    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=5, algorithm='ball_tree').fit(S)
     distances, indices = nbrs.kneighbors(X)
     for cd in range(len(seeds)):
         cluster[cd] = []
@@ -223,9 +223,9 @@ def point2cluster(datapointwts,seeds,theta):
     Xrot = [(lonconst * xx[0], latconst * xx[1], theta / 180 * (xx[2]%360)) for xx in datapointwts];    Srot = [(lonconst * xx[0], latconst * xx[1], theta / 180 * (xx[2]%360)) for xx in seeds];
     for cd in range(len(seeds)):
         cluster[cd] = []
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(S)
+    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(S)
     distances, indices = nbrs.kneighbors(X)
-    nbrsrot = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(Srot)
+    nbrsrot = sklearn.neighbors.NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(Srot)
     distancesrot, indicesrot = nbrsrot.kneighbors(Xrot)
     for ii, ll in enumerate(indices):
         #        print(distances[ii],distancesrot[ii],ll,indices[ii],indicesrot[ii])
@@ -258,7 +258,7 @@ def splitclusters(datapointwts,seeds,theta):
 
 def splitclustersparallel(datapointwts,seeds):
     X = [(xx[0], xx[1]) for xx in datapointwts];    S = [(xx[0], xx[1]) for xx in seeds];cluster = {};p2cluster = []; gedges = {}; gedges1 = {}; nedges = {}; std = {}; seeds1 = []; seedweight = []; roadwidth = [];
-    nbrs = NearestNeighbors(n_neighbors=20, algorithm='ball_tree').fit(S)
+    nbrs = sklearn.neighbors.NearestNeighbors(n_neighbors=20, algorithm='ball_tree').fit(S)
     distances, indices = nbrs.kneighbors(X)
     for cd in range(len(seeds)):
         cluster[cd] = []; roadwidth.append(0);

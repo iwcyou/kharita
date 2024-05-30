@@ -6,7 +6,7 @@ import operator
 import geopy
 import geopy.distance
 import math
-
+import networkx as nx
 
 class GpsPoint:
 	def __init__(self, vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
@@ -135,9 +135,9 @@ def create_trajectories(INPUT_FILE_NAME='data/gps_data/gps_points_07-11.csv', wa
 		detections[p.vehicule_id].append(p)
 
 	# compute trajectories: split detections by waiting_threshold
-	print 'Computing trajectories'
+	print('Computing trajectories')
 	trajectories = []
-	for btd, ldetections in detections.iteritems():
+	for btd, ldetections in detections.items():
 		points = sorted(ldetections, key=operator.attrgetter('timestamp'))
 		source = 0
 		prev_point = 0
@@ -174,7 +174,7 @@ def partition_edge(edge, distance_interval):
 
 	# We always return the source node of the edge, hopefully the target will be added as the source of another edge.
 	holes = []
-	d = geopy.distance.VincentyDistance(meters=distance_interval)
+	d = geopy.distance.GeodesicDistance(meters=distance_interval)
 	# make sure we are using lat,lon not lon,lat as a reference.
 	startpoint = geopy.Point(edge[0].get_coordinates())
 	endpoint = geopy.Point(edge[1].get_coordinates())
@@ -188,7 +188,7 @@ def partition_edge(edge, distance_interval):
 	diff_time = edge[1].last_seen - edge[0].last_seen
 	delta_time = diff_time.days*24*3600 + diff_time.seconds
 	time_increment = delta_time / (int(initial_dist) / distance_interval)
-	for i in range(int(initial_dist) / distance_interval):
+	for i in range(int(initial_dist) // distance_interval):
 		new_point = geopy.Point(d.destination(point=last_point, bearing=bearing))
 		str_timestamp = datetime.datetime.strftime(edge[0].last_seen + datetime.timedelta(seconds=time_increment), "%Y-%m-%d %H:%M:%S+03")
 		holes.append(GpsPoint(lat=new_point.latitude, lon=new_point.longitude, angle=bearing,
