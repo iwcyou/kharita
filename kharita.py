@@ -2,24 +2,20 @@
 author: rade
 Create the road network by merging trajectories.
 """
-import time, datetime
-import numpy as np
-import matplotlib
 import getopt
 import sys
-import matplotlib.pyplot as plt
-from geopy.distance import vincenty
-from sklearn.neighbors import NearestNeighbors
-from geojson import MultiLineString
+import time
+
+from geopy.distance import geodesic
 
 from methods_kharita import getdata, computeclusters, coocurematrix, prunegraph, printedges, plotmap
 
 if __name__ == '__main__':
     # Default parameters
     start = time.time();    LL = (41, -87);
-    print(vincenty(LL, (LL[0] + 1, LL[1])).meters, vincenty(LL, (LL[0], LL[1] + 1)).meters)
-    latconst = vincenty(LL, (LL[0] + 1, LL[1])).meters;
-    lonconst = vincenty(LL, (LL[0], LL[1] + 1)).meters
+    print(geodesic(LL, (LL[0] + 1, LL[1])).meters, geodesic(LL, (LL[0], LL[1] + 1)).meters)
+    latconst = geodesic(LL, (LL[0] + 1, LL[1])).meters;
+    lonconst = geodesic(LL, (LL[0], LL[1] + 1)).meters
     theta = 150;
     SEEDRADIUS = 100;
     datafile = './data/gps_points_uic.csv' #'gps_points_01-10'
