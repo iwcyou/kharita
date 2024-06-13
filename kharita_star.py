@@ -3,6 +3,7 @@ author: sofiane
 Create the road network by merging trajectories.
 
 """
+import os
 import geopy
 import math
 import numpy as np
@@ -50,7 +51,7 @@ if __name__ == '__main__':
 	p_X = []
 	p_Y = []
 	starting_time = datetime.datetime.now()
-	trajectories = create_trajectories(INPUT_FILE_NAME= '%s/%s.csv' % (DATA_PATH, FILE_CODE), waiting_threshold=21)
+	trajectories = create_trajectories(INPUT_FILE_NAME= os.path.join(DATA_PATH, FILE_CODE), waiting_threshold=21)
 
 	starting_time = datetime.datetime.now()
 	for i, trajectory in enumerate(trajectories[:-1]):

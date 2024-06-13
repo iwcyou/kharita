@@ -7,6 +7,7 @@ import geopy
 import geopy.distance
 import math
 import networkx as nx
+import pickle
 
 class GpsPoint:
 	def __init__(self, vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
@@ -105,18 +106,49 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 	:return: data_points (list of gps positions with their metadata), raw_points (coordinates only),
 	points_tree is the KDTree structure to enable searching the points space
 	"""
+
+	if "bj" in fname: #different datasets are different load ways; sz, bj, vanilla
+		dataset_name = "bj"
+	elif "sz" in fname:
+		dataset_name = "sz"
+	else:
+		dataset_name = "vanilla"
+
 	data_points = list()
 	raw_points = list()
 
-	with open(fname, 'r') as f:
-		f.readline()
-		for line in f:
-			if len(line) < 10:
+	if dataset_name == "bj":
+    	with open(fname, 'rb') as f:
+        	data = pickle.load(f)
+    	for row in data.values:
+			if len(row) < 10:
 				continue
-			vehicule_id, timestamp, lat, lon, speed, angle = line.split(',')
-			pt = GpsPoint(vehicule_id=vehicule_id, timestamp=timestamp, lat=lat, lon=lon, speed=speed,angle=angle)
+        	index, id, time, lon, lat, dir, speed, timeinterval = row
+			pt = GpsPoint(vehicule_id=index, timestamp=time, lat=lat, lon=lon, speed=speed,angle=dir)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())
+
+	elif dataset_name == "sz":
+		with open(fname, 'rb') as f:
+			data = pickle.load(f)
+		for row in data.values:
+			if len(row) < 10:
+				continue
+			id, lon, lat, time, speed, direction = row
+			pt = GpsPoint(vehicule_id=vehicule_id, timestamp=time, lat=lat, lon=lon, speed=speed,angle=direction)
+			data_points.append(pt)
+			raw_points.append(pt.get_coordinates())
+
+	elif dataset_name == "vanilla":
+		with open(fname, 'r') as f:
+			f.readline()
+			for line in f:
+				if len(line) < 10:
+					continue
+				vehicule_id, timestamp, lat, lon, speed, angle = line.split(',')
+				pt = GpsPoint(vehicule_id=vehicule_id, timestamp=timestamp, lat=lat, lon=lon, speed=speed,angle=angle)
+				data_points.append(pt)
+				raw_points.append(pt.get_coordinates())
 	points_tree = cKDTree(raw_points)
 	return np.array(data_points), np.array(raw_points), points_tree
 
