@@ -8,12 +8,18 @@ import geopy.distance
 import math
 import networkx as nx
 import pickle
+import pandas as pd
 
 class GpsPoint:
-	def __init__(self, vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
+	def __init__(self, dataset_name = "vanilla", vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
 			self.vehicule_id = int(vehicule_id) if vehicule_id != None else 0
 			self.speed = float(speed) if speed != None else 0.0
-			self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03') if timestamp !=None else 0
+			if dataset_name == "bj": #seconds since epoch format to datetime
+				self.timestamp = pd.to_datetime(timestamp, unit='s')
+			elif dataset_name == "sz": #TODO: check the timestamp format
+				self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S') if timestamp !=None else 0
+			elif dataset_name == "vanilla":
+				self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03') if timestamp !=None else 0
 			self.lon = float(lon)
 			self.lat = float(lat)
 			self.angle = float(angle)
@@ -118,22 +124,22 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 	raw_points = list()
 
 	if dataset_name == "bj":
-    	with open(fname, 'rb') as f:
-        	data = pickle.load(f)
-    	for row in data.values:
-			if len(row) < 10:
-				continue
-        	index, id, time, lon, lat, dir, speed, timeinterval = row
-			pt = GpsPoint(vehicule_id=index, timestamp=time, lat=lat, lon=lon, speed=speed,angle=dir)
-			data_points.append(pt)
-			raw_points.append(pt.get_coordinates())
-
-	elif dataset_name == "sz":
 		with open(fname, 'rb') as f:
 			data = pickle.load(f)
 		for row in data.values:
-			if len(row) < 10:
-				continue
+			# if len(row) < 10:
+			# 	continue
+			index, id, time, lon, lat, dir, speed, timeinterval = row
+			pt = GpsPoint(dataset_name = dataset_name, vehicule_id=index, timestamp=time, lat=lat, lon=lon, speed=speed,angle=dir)
+			data_points.append(pt)
+			raw_points.append(pt.get_coordinates())
+
+	elif dataset_name == "sz": #TODO: check the timestamp format
+		with open(fname, 'rb') as f:
+			data = pickle.load(f)
+		for row in data.values:
+			# if len(row) < 10:
+			# 	continue
 			id, lon, lat, time, speed, direction = row
 			pt = GpsPoint(vehicule_id=vehicule_id, timestamp=time, lat=lat, lon=lon, speed=speed,angle=direction)
 			data_points.append(pt)
