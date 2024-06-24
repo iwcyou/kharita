@@ -129,8 +129,8 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 		for row in data.values:
 			# if len(row) < 10:
 			# 	continue
-			index, id, time, lon, lat, dir, speed, timeinterval = row
-			pt = GpsPoint(dataset_name = dataset_name, vehicule_id=index, timestamp=time, lat=lat, lon=lon, speed=speed,angle=dir)
+			traj, id, time, lon, lat, angle, speed, timeinterval = row
+			pt = GpsPoint(dataset_name = dataset_name, vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed,angle=angle)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())
 
@@ -140,8 +140,8 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 		for row in data.values:
 			# if len(row) < 10:
 			# 	continue
-			id, lon, lat, time, speed, direction = row
-			pt = GpsPoint(vehicule_id=vehicule_id, timestamp=time, lat=lat, lon=lon, speed=speed,angle=direction)
+			traj, id, lon, lat, time, speed, angle = row
+			pt = GpsPoint(vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed,angle=angle)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())
 
