@@ -9,7 +9,6 @@ import math
 import networkx as nx
 import pickle
 import pandas as pd
-import pytz
 
 
 # DATASET_NAME = "vanilla" #default dataset name
@@ -22,13 +21,15 @@ class GpsPoint:
 			self.vehicule_id = int(vehicule_id) if vehicule_id != None else 0
 			self.speed = float(speed) if speed != None else 0.0
 			if DATASET_NAME == "bj": #seconds since epoch format to datetime
-				self.timestamp = pd.to_datetime(timestamp, unit='s') if type(timestamp) != str else datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03')
+				self.timestamp = pd.to_datetime(timestamp, unit='s') if type(timestamp) != str else pd.to_datetime(timestamp)
 			elif DATASET_NAME == "sz": #TODO: check the timestamp format
 				# print(timestamp, type(timestamp))
 				#convert pd.Timestamp type to datetime type
-				self.timestamp = timestamp.to_pydatetime() if type(timestamp) != str else datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03')
+				# self.timestamp = timestamp if type(timestamp) != str else datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03')
+				self.timestamp = timestamp
 			elif DATASET_NAME == "vanilla":
-				self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03') if timestamp !=None else 0
+				# self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03') if timestamp !=None else 0
+				self.timestamp = pd.to_datetime(timestamp) if timestamp !=None else 0
 			self.lon = float(lon)
 			self.lat = float(lat)
 			self.angle = float(angle)
@@ -232,15 +233,19 @@ def partition_edge(edge, distance_interval):
 	# compute the angle=bearing at which we need to be moving.
 	bearing = calculate_bearing(startpoint[0], startpoint[1], endpoint[0], endpoint[1])
 	last_point = startpoint
-	print(edge[0].last_seen, edge[1].last_seen)
+	# print(edge[0].last_seen, edge[1].last_seen)
 	diff_time = edge[1].last_seen - edge[0].last_seen
 	delta_time = diff_time.days*24*3600 + diff_time.seconds
 	time_increment = delta_time / (int(initial_dist) / distance_interval)
 	for i in range(int(initial_dist) // distance_interval):
 		new_point = geopy.Point(d.destination(point=last_point, bearing=bearing))
-		str_timestamp = datetime.datetime.strftime(edge[0].last_seen + datetime.timedelta(seconds=time_increment), "%Y-%m-%d %H:%M:%S+03")
+		# str_timestamp = datetime.datetime.strftime(edge[0].last_seen + datetime.timedelta(seconds=time_increment), "%Y-%m-%d %H:%M:%S+03")
+		# holes.append(GpsPoint(lat=new_point.latitude, lon=new_point.longitude, angle=bearing,
+		#                       timestamp=str_timestamp))
+		new_time = edge[0].last_seen + datetime.timedelta(seconds=time_increment)
+		timestamp = pd.Timestamp(new_time)
 		holes.append(GpsPoint(lat=new_point.latitude, lon=new_point.longitude, angle=bearing,
-		                      timestamp=str_timestamp))
+		                      timestamp=timestamp))
 		last_point = new_point
 	# return holes, initial_dist - (initial_dist / distance_interval) * distance_interval
 	return holes
