@@ -171,5 +171,5 @@ if __name__ == '__main__':
 		save_path = "saved_images_star"
 		if not os.path.exists(save_path):
 			os.makedirs(save_path)
-		plt.savefig('%s/%s.png' % (save_path, FILE_CODE))
+		plt.savefig(f'{save_path}/{FILE_CODE}_{RADIUS_METER}_{SAMPLING_DISTANCE}_{HEADING_ANGLE_TOLERANCE}.png')
 
