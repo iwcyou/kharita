@@ -9,16 +9,25 @@ import math
 import networkx as nx
 import pickle
 import pandas as pd
+import pytz
+
+
+# DATASET_NAME = "vanilla" #default dataset name
+# DATASET_NAME = "bj"
+DATASET_NAME = "sz"
+
 
 class GpsPoint:
-	def __init__(self, dataset_name = "vanilla", vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
+	def __init__(self, vehicule_id=None, lon=None, lat=None, speed=None, timestamp=None, angle=None):
 			self.vehicule_id = int(vehicule_id) if vehicule_id != None else 0
 			self.speed = float(speed) if speed != None else 0.0
-			if dataset_name == "bj": #seconds since epoch format to datetime
-				self.timestamp = pd.to_datetime(timestamp, unit='s')
-			elif dataset_name == "sz": #TODO: check the timestamp format
-				self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S') if timestamp !=None else 0
-			elif dataset_name == "vanilla":
+			if DATASET_NAME == "bj": #seconds since epoch format to datetime
+				self.timestamp = pd.to_datetime(timestamp, unit='s') if type(timestamp) != str else datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03')
+			elif DATASET_NAME == "sz": #TODO: check the timestamp format
+				# print(timestamp, type(timestamp))
+				#convert pd.Timestamp type to datetime type
+				self.timestamp = timestamp.to_pydatetime() if type(timestamp) != str else datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03')
+			elif DATASET_NAME == "vanilla":
 				self.timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S+03') if timestamp !=None else 0
 			self.lon = float(lon)
 			self.lat = float(lat)
@@ -113,46 +122,46 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 	points_tree is the KDTree structure to enable searching the points space
 	"""
 
-	if "bj" in fname: #different datasets are different load ways; sz, bj, vanilla
-		dataset_name = "bj"
-	elif "sz" in fname:
-		dataset_name = "sz"
-	else:
-		dataset_name = "vanilla"
+	# if "bj" in fname: #different datasets are different load ways; sz, bj, vanilla
+	# 	DATASET_NAME = "bj"
+	# elif "sz" in fname:
+	# 	DATASET_NAME = "sz"
+	# else:
+	# 	DATASET_NAME = "vanilla"
 
 	data_points = list()
 	raw_points = list()
 
-	if dataset_name == "bj":
+	if DATASET_NAME == "bj":
 		with open(fname, 'rb') as f:
 			data = pickle.load(f)
 		for row in data.values:
 			# if len(row) < 10:
 			# 	continue
 			traj, id, time, lon, lat, angle, speed, timeinterval = row
-			pt = GpsPoint(dataset_name = dataset_name, vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed,angle=angle)
+			pt = GpsPoint(vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed, angle=angle)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())
 
-	elif dataset_name == "sz": #TODO: check the timestamp format
+	elif DATASET_NAME == "sz":
 		with open(fname, 'rb') as f:
 			data = pickle.load(f)
 		for row in data.values:
 			# if len(row) < 10:
 			# 	continue
 			traj, id, lon, lat, time, speed, angle = row
-			pt = GpsPoint(vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed,angle=angle)
+			pt = GpsPoint(vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed, angle=angle)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())
 
-	elif dataset_name == "vanilla":
+	elif DATASET_NAME == "vanilla":
 		with open(fname, 'r') as f:
 			f.readline()
 			for line in f:
 				if len(line) < 10:
 					continue
 				vehicule_id, timestamp, lat, lon, speed, angle = line.split(',')
-				pt = GpsPoint(vehicule_id=vehicule_id, timestamp=timestamp, lat=lat, lon=lon, speed=speed,angle=angle)
+				pt = GpsPoint(vehicule_id=vehicule_id, timestamp=timestamp, lat=lat, lon=lon, speed=speed, angle=angle)
 				data_points.append(pt)
 				raw_points.append(pt.get_coordinates())
 	points_tree = cKDTree(raw_points)
@@ -223,6 +232,7 @@ def partition_edge(edge, distance_interval):
 	# compute the angle=bearing at which we need to be moving.
 	bearing = calculate_bearing(startpoint[0], startpoint[1], endpoint[0], endpoint[1])
 	last_point = startpoint
+	print(edge[0].last_seen, edge[1].last_seen)
 	diff_time = edge[1].last_seen - edge[0].last_seen
 	delta_time = diff_time.days*24*3600 + diff_time.seconds
 	time_increment = delta_time / (int(initial_dist) / distance_interval)

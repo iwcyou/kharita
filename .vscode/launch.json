@@ -1,0 +1,18 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File with Arguments",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            // "args": "-p data -f data_uic.csv -r 100 -s 20 -a 60"
+            "args": "-p data/dataset_bj_time -f 1_55_gps.pkl -r 50 -s 10 -a 20"
+            // "args": "-p data/dataset_sz_4096size -f 4_9_gps.pkl -r 100 -s 20 -a 60"
+        }
+    ]
+}
