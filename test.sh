@@ -4,4 +4,10 @@
 
 # python kharita_star.py -p data/dataset_sz_4096size -f 4_9_gps.pkl -r 100 -s 20 -a 60
 
-python kharita_star.py -p data/dataset_sz_4096size -f 0_10_gps.pkl -r 25 -s 10 -a 40
+# python kharita_star.py -p data/dataset_sz_4096size -f 27_7_gps.pkl -r 25 -s 10 -a 40
+
+# python kharita_star.py -p data/dataset_sz -f 4_42_gps.pkl -r 100 -s 20 -a 60
+
+python kharita_star.py -p data/dataset_sz -f 10_16_gps.pkl -r 100 -s 20 -a 100
+
+# python kharita_star.py -p data/dataset_sz -f 11_40_gps.pkl -r 25 -s 10 -a 40

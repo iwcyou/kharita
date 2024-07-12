@@ -150,7 +150,8 @@ def load_data(fname='data/gps_data/gps_points.csv'):
 		for row in data.values:
 			# if len(row) < 10:
 			# 	continue
-			traj, id, lon, lat, time, speed, angle = row
+			# traj, id, lon, lat, time, speed, angle = row
+			traj, id, time, lon, lat, angle, speed, device, dspeed, mileage = row
 			pt = GpsPoint(vehicule_id=traj, timestamp=time, lat=lat, lon=lon, speed=speed, angle=angle)
 			data_points.append(pt)
 			raw_points.append(pt.get_coordinates())

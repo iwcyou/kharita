@@ -10,8 +10,8 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            // "args": "-p data -f data_uic.csv -r 100 -s 20 -a 60"
-            "args": "-p data/dataset_bj_time -f 1_55_gps.pkl -r 50 -s 10 -a 20"
+            "args": "-p data -f data_uic.csv -r 100 -s 20 -a 60"
+            // "args": "-p data/dataset_bj_time -f 1_55_gps.pkl -r 50 -s 10 -a 20"
             // "args": "-p data/dataset_sz_4096size -f 4_9_gps.pkl -r 100 -s 20 -a 60"
         }
     ]
