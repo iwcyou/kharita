@@ -8,6 +8,6 @@
 
 # python kharita_star.py -p data/dataset_sz -f 4_42_gps.pkl -r 100 -s 20 -a 60
 
-python kharita_star.py -p data/dataset_sz -f 10_16_gps.pkl -r 100 -s 20 -a 100
+python kharita_star.py -p data/dataset_sz -f 10_16_gps_filter.pkl -r 50 -s 20 -a 60
 
 # python kharita_star.py -p data/dataset_sz -f 11_40_gps.pkl -r 25 -s 10 -a 40
